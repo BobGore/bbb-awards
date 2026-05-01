@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The B Weekend — Treble B Awards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --black: #0a0a0a;
+    --deep: #111111;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --text: #e8e0d0;
+    --muted: #888;
+    --red: #cc2200;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: 'Crimson Text', serif;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 20% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(201,168,76,0.05) 0%, transparent 60%);
+  }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── HEADER ── */
+  .site-header {
+    text-align: center;
+    padding: 2rem 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .bbb-logo {
+    display: inline-flex;
+    gap: 6px;
+    margin-bottom: 0.4rem;
+  }
+  .bbb-logo span {
+    display: inline-block;
+    background: var(--text);
+    color: var(--black);
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.2rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    line-height: 2.6rem;
+    text-align: center;
+    letter-spacing: 0;
+  }
+
+  .site-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.15rem;
+  }
+  .site-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .byork {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+
+  /* ── GATE / PASSWORD ── */
+  #gate {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+  }
+  .gate-bbb { display: inline-flex; gap: 8px; margin-bottom: 1.5rem; }
+  .gate-bbb span {
+    display: inline-block;
+    background: var(--text);
+    color: var(--black);
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    line-height: 3.5rem;
+    text-align: center;
+  }
+  .gate-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+    color: var(--text);
+  }
+  .gate-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    font-style: italic;
+  }
+  .gate-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    max-width: 340px;
+    width: 100%;
+  }
+  .gate-box label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .gate-box input, .gate-box select {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.7rem 1rem;
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    outline: none;
+  }
+  .gate-box input:focus, .gate-box select:focus { border-color: var(--gold); }
+  .gate-box select option { background: var(--black); }
+  .btn-gold {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 0.8rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+  .gate-error { color: var(--red); font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 1rem; }
+
+  /* ── AWARD CARDS (voting) ── */
+  .award-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .award-card.voted { border-color: var(--gold); }
+  .award-card-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  .award-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 0.15rem;
+  }
+  .award-card .subtitle {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+  .award-card .description {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+  .nominees-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .nominee-btn {
+    background: var(--black);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 0.8rem;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .nominee-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .nominee-btn.selected {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+    font-weight: 600;
+  }
+  .voted-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 0.15rem 0.4rem;
+    display: none;
+  }
+  .award-card.voted .voted-badge { display: block; }
+
+  .submit-wrap {
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .btn-submit {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 1rem 3rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.3rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-submit:hover { background: var(--gold-light); }
+  .btn-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .submit-note { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+
+  /* ── ADMIN PANEL ── */
+  .admin-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .admin-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-field { margin-bottom: 0.8rem; }
+  .admin-field label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  .admin-field input, .admin-field textarea {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 0.8rem;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .admin-field input:focus, .admin-field textarea:focus { border-color: var(--gold); }
+  .admin-field textarea { resize: vertical; min-height: 60px; }
+  .nominees-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.3rem; }
+  .nominees-inputs input {
+    background: var(--black);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 0.7rem;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.9rem;
+    outline: none;
+    width: 100%;
+  }
+  .nominees-inputs input:focus { border-color: var(--gold); }
+
+  .award-admin-card {
+    background: var(--black);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .award-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    cursor: pointer;
+  }
+  .award-admin-header span {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--text);
+  }
+  .award-admin-header .expand-icon {
+    color: var(--muted);
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+  }
+  .award-admin-body { display: none; }
+  .award-admin-card.open .award-admin-body { display: block; }
+  .award-admin-card.open .expand-icon { transform: rotate(180deg); }
+
+  .admin-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+  .btn-sm {
+    padding: 0.4rem 0.9rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-sm:hover { opacity: 0.8; }
+  .btn-save { background: var(--gold); color: var(--black); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.4rem 0.9rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .setting-item { display: flex; align-items: center; justify-content: space-between; }
+  .setting-item label { font-size: 0.85rem; color: var(--muted); }
+  .toggle {
+    width: 44px; height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: var(--gold); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 23px; }
+
+  .sheets-info {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+  .sheets-info code {
+    background: var(--black);
+    padding: 0.15rem 0.4rem;
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-style: normal;
+  }
+
+  /* ── REVEAL VIEW ── */
+  #reveal { background: var(--black); min-height: 100vh; }
+  .reveal-stage {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    position: relative;
+  }
+  .reveal-category {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .reveal-award-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+    opacity: 0;
+    transition: opacity 0.8s ease 0.3s;
+    line-height: 1.2;
+  }
+  .reveal-subtitle {
+    font-style: italic;
+    color: var(--gold);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0;
+    transition: opacity 0.8s ease 0.5s;
+  }
+  .reveal-stage.show .reveal-category,
+  .reveal-stage.show .reveal-award-name,
+  .reveal-stage.show .reveal-subtitle { opacity: 1; }
+
+  .reveal-envelope {
+    margin: 1rem 0;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.8s;
+  }
+  .reveal-stage.show .reveal-envelope { opacity: 1; }
+  .envelope-btn {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    padding: 1rem 2.5rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.2rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .envelope-btn:hover { background: var(--gold); color: var(--black); }
+
+  .reveal-winner {
+    margin-top: 1.5rem;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal-winner.show {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .winner-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .winner-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,168,76,0.4);
+    animation: shimmer 2s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer {
+    from { text-shadow: 0 0 20px rgba(201,168,76,0.3); }
+    to { text-shadow: 0 0 50px rgba(201,168,76,0.7), 0 0 80px rgba(201,168,76,0.3); }
+  }
+  .vote-count {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    font-style: italic;
+  }
+
+  .reveal-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .reveal-nav button {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 1.5rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reveal-nav button:hover { border-color: var(--gold); color: var(--gold); }
+  .reveal-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .reveal-progress {
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    padding-bottom: 1rem;
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--gold);
+    color: var(--black);
+    padding: 0.7rem 1.5rem;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    transition: transform 0.3s ease;
+    z-index: 999;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed;
+    width: 8px; height: 8px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── RESULTS TABLE ── */
+  .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+  .results-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .results-table td {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(42,42,42,0.5);
+  }
+  .results-table tr.winner td { color: var(--gold); font-weight: 600; }
+  .vote-bar-wrap { background: var(--black); height: 6px; width: 100px; display: inline-block; vertical-align: middle; }
+  .vote-bar { background: var(--gold); height: 6px; }
+
+  /* ── UTIL ── */
+  .text-center { text-align: center; }
+  .mt1 { margin-top: 1rem; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+  .section-sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  @media (max-width: 500px) {
+    .nominees-grid { grid-template-columns: 1fr; }
+    .settings-grid { grid-template-columns: 1fr; }
+    .byork { display: none; }
+    .reveal-award-name { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ GATE -->
+<div id="gate">
+  <div class="gate-bbb">
+    <span>B</span><span>B</span><span>B</span>
+  </div>
+  <div class="gate-title">The B Weekend</div>
+  <div class="gate-sub">Treble B Awards · BYÖRK 2026</div>
+
+  <div class="gate-box">
+    <label>Your name</label>
+    <select id="gate-name">
+      <option value="">— Select your name —</option>
+    </select>
+    <label>Password</label>
+    <input type="password" id="gate-pass" placeholder="Enter the password" autocomplete="off">
+    <button class="btn-gold" onclick="gateEnter()">Enter the ceremony</button>
+    <div class="gate-error" id="gate-error">Wrong password or name not selected.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ MAIN APP -->
+<div id="app" style="display:none;">
+
+  <!-- Header -->
+  <div class="site-header">
+    <div class="byork">BYÖRK<br>2026</div>
+    <div class="bbb-logo">
+      <span>B</span><span>B</span><span>B</span>
+    </div>
+    <h1>The B Weekend</h1>
+    <h2>Treble B Awards</h2>
+  </div>
+
+  <div class="nav-links">
+    <a onclick="showView('voting')" id="nav-voting">Vote</a>
+    <a onclick="showView('reveal')" id="nav-reveal">Reveal</a>
+    <a onclick="showView('admin')" id="nav-admin" style="display:none;">Admin</a>
+    <a onclick="logout()" style="color:var(--muted);">Logout</a>
+  </div>
+
+  <!-- ── VOTING VIEW ── -->
+  <div id="view-voting" class="view active">
+    <div class="main-wrap">
+      <div class="section-title">Cast Your Votes</div>
+      <div class="section-sub" id="voter-greeting">Voting is open</div>
+      <div id="awards-list"></div>
+      <div class="submit-wrap">
+        <button class="btn-submit" id="submit-btn" onclick="submitVotes()">Submit All Votes</button>
+        <div class="submit-note" id="submit-note">Select a nominee for each award before submitting.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REVEAL VIEW ── -->
+  <div id="view-reveal" class="view">
+    <div class="reveal-stage" id="reveal-stage">
+      <div class="reveal-category" id="rv-num"></div>
+      <div class="reveal-award-name" id="rv-name">Welcome to the<br>Treble B Awards</div>
+      <div class="reveal-subtitle" id="rv-sub">BYÖRK 2026 · York</div>
+      <div class="reveal-envelope" id="rv-envelope">
+        <button class="envelope-btn" id="envelope-btn" onclick="openEnvelope()">▶ Open Envelope</button>
+      </div>
+      <div class="reveal-winner" id="rv-winner">
+        <div class="winner-label">And the award goes to...</div>
+        <div class="winner-name" id="rv-winner-name"></div>
+        <div class="vote-count" id="rv-vote-count"></div>
+      </div>
+    </div>
+    <div class="reveal-progress" id="rv-progress"></div>
+    <div class="reveal-nav">
+      <button onclick="revealPrev()" id="rv-prev">◀ Previous</button>
+      <button onclick="revealNext()" id="rv-next">Next ▶</button>
+    </div>
+
+    <!-- Results summary (admin only) -->
+    <div class="main-wrap" id="results-summary" style="display:none;">
+      <div class="section-title mt1">Full Results</div>
+      <div class="section-sub">All votes tallied</div>
+      <div id="results-tables"></div>
+    </div>
+  </div>
+
+  <!-- ── ADMIN VIEW ── -->
+  <div id="view-admin" class="view">
+    <div class="main-wrap">
+      <div class="section-title">Admin Panel</div>
+      <div class="section-sub">Manage awards, nominees & settings</div>
+
+      <!-- Sheets config -->
+      <div class="admin-section">
+        <h3>Google Sheets Connection</h3>
+        <div class="sheets-info">
+          Enter your Google Apps Script Web App URL below to enable vote storage.
+          See setup instructions at the bottom of this page.
+        </div>
+        <div class="admin-field">
+          <label>Apps Script Web App URL</label>
+          <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/YOUR_ID/exec">
+        </div>
+        <div class="admin-actions">
+          <button class="btn-sm btn-save" onclick="saveSheetUrl()">Save URL</button>
+          <button class="btn-sm btn-outline" onclick="testSheetUrl()">Test Connection</button>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="admin-section">
+        <h3>Settings</h3>
+        <div class="settings-grid">
+          <div class="setting-item">
+            <label>Voting open</label>
+            <button class="toggle" id="toggle-voting" onclick="toggleSetting('votingOpen')"></button>
+          </div>
+          <div class="setting-item">
+            <label>Show results</label>
+            <button class="toggle" id="toggle-results" onclick="toggleSetting('resultsVisible')"></button>
+          </div>
+        </div>
+        <div class="admin-field mt1">
+          <label>Access password</label>
+          <input type="text" id="setting-password" placeholder="Current password">
+        </div>
+        <div class="admin-field">
+          <label>Attendee names (one per line)</label>
+          <textarea id="setting-names" rows="6" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave"></textarea>
+        </div>
+        <div class="admin-actions">
+          <button class="btn-sm btn-save" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </div>
+
+      <!-- Awards editor -->
+      <div class="admin-section">
+        <h3>Award Categories</h3>
+        <div id="admin-awards-list"></div>
+        <button class="btn-outline mt1" onclick="addAward()" style="width:100%;padding:0.7rem;">
+          + Add New Award Category
+        </button>
+      </div>
+
+      <!-- Vote data -->
+      <div class="admin-section">
+        <h3>Vote Data</h3>
+        <div id="admin-vote-data">
+          <p style="color:var(--muted);font-size:0.9rem;font-style:italic;">
+            Connect Google Sheets to see live vote data here.
+          </p>
+        </div>
+        <div class="admin-actions mt1">
+          <button class="btn-sm btn-outline" onclick="refreshVotes()">Refresh Votes</button>
+          <button class="btn-sm btn-danger" onclick="clearVotes()">Clear All Votes</button>
+        </div>
+      </div>
+
+      <!-- Setup instructions -->
+      <div class="admin-section">
+        <h3>Google Sheets Setup</h3>
+        <div style="font-size:0.85rem;color:var(--muted);line-height:1.8;">
+          <p style="margin-bottom:0.5rem;">1. Create a new Google Sheet with columns: <code style="background:var(--black);padding:0.1rem 0.3rem;color:var(--gold);">timestamp, voter, award_id, nominee</code></p>
+          <p style="margin-bottom:0.5rem;">2. In your Sheet, go to <strong style="color:var(--text);">Extensions → Apps Script</strong></p>
+          <p style="margin-bottom:0.5rem;">3. Paste the Apps Script code (copy from below), click <strong style="color:var(--text);">Deploy → New Deployment → Web App</strong></p>
+          <p style="margin-bottom:0.5rem;">4. Set access to <strong style="color:var(--text);">"Anyone"</strong>, copy the Web App URL, paste it above</p>
+          <p style="margin-bottom:1rem;">5. Click "Test Connection" to confirm it's working</p>
+          <details>
+            <summary style="cursor:pointer;color:var(--gold);margin-bottom:0.5rem;">▶ Show Apps Script code to copy</summary>
+            <pre id="apps-script-code" style="background:var(--black);padding:1rem;font-size:0.75rem;color:var(--text);overflow-x:auto;margin-top:0.5rem;white-space:pre-wrap;"></pre>
+            <button class="btn-sm btn-outline mt1" onclick="copyAppsScript()">Copy Script</button>
+          </details>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+
+const ADMIN_PASSWORD = 'bbbawards2026admin';
+
+const defaultState = {
+  password: 'byork2026',
+  votingOpen: true,
+  resultsVisible: false,
+  sheetUrl: '',
+  names: ['Name 1','Name 2','Name 3','Name 4','Name 5','Name 6','Name 7','Name 8','Name 9'],
+  awards: [
+    {
+      id: 'a1',
+      name: 'Mr No Show Award',
+      subtitle: 'For Outstanding Absence',
+      description: 'Awarded to the one who excels at saying they\'ll be there... and then isn\'t.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a2',
+      name: 'Different Times Award',
+      subtitle: 'For Inappropriate Comments',
+      description: 'For consistently saying exactly the wrong thing at exactly the wrong moment.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a3',
+      name: 'Tom Cruise Maverick Award',
+      subtitle: 'For Maverick Behaviour',
+      description: 'Goes above and beyond. Probably unnecessarily. Almost certainly unnecessarily.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a4',
+      name: 'Getting an Award Award',
+      subtitle: 'For Being Honoured Elsewhere',
+      description: 'When one award simply isn\'t enough. Recognising the recogniser.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a5',
+      name: 'Award 5',
+      subtitle: 'Subtitle here',
+      description: 'Description here — edit in the admin panel.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a6',
+      name: 'Award 6',
+      subtitle: 'Subtitle here',
+      description: 'Description here — edit in the admin panel.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a7',
+      name: 'Award 7',
+      subtitle: 'Subtitle here',
+      description: 'Description here — edit in the admin panel.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a8',
+      name: 'Award 8',
+      subtitle: 'Subtitle here',
+      description: 'Description here — edit in the admin panel.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    },
+    {
+      id: 'a9',
+      name: 'Award 9',
+      subtitle: 'Subtitle here',
+      description: 'Description here — edit in the admin panel.',
+      nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    }
+  ]
+};
+
+let state = JSON.parse(localStorage.getItem('bbb_state') || 'null') || defaultState;
+let votes = JSON.parse(localStorage.getItem('bbb_votes') || '{}'); // {voter: {awardId: nominee}}
+let currentVoter = null;
+let isAdmin = false;
+let revealIndex = 0;
+let envelopeOpen = false;
+
+function saveState() {
+  localStorage.setItem('bbb_state', JSON.stringify(state));
+}
+
+// ════════════════════════════════════════════════════════
+//  GATE
+// ════════════════════════════════════════════════════════
+
+function initGate() {
+  const sel = document.getElementById('gate-name');
+  sel.innerHTML = '<option value="">— Select your name —</option>';
+  state.names.forEach(n => {
+    const o = document.createElement('option');
+    o.value = n; o.textContent = n;
+    sel.appendChild(o);
+  });
+  // Admin option
+  const ao = document.createElement('option');
+  ao.value = '__admin__'; ao.textContent = '⚙ Admin';
+  sel.appendChild(ao);
+}
+
+function gateEnter() {
+  const name = document.getElementById('gate-name').value;
+  const pass = document.getElementById('gate-pass').value;
+  const err = document.getElementById('gate-error');
+  err.style.display = 'none';
+
+  if (name === '__admin__' && pass === ADMIN_PASSWORD) {
+    isAdmin = true;
+    currentVoter = 'Admin';
+    enterApp();
+    return;
+  }
+  if (name && pass === state.password) {
+    isAdmin = false;
+    currentVoter = name;
+    enterApp();
+    return;
+  }
+  err.style.display = 'block';
+}
+
+document.getElementById('gate-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') gateEnter();
+});
+
+function enterApp() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('nav-admin').style.display = isAdmin ? 'inline' : 'none';
+  document.getElementById('voter-greeting').textContent =
+    'Voting as: ' + currentVoter + (state.votingOpen ? '' : ' · Voting is closed');
+  renderVoting();
+  if (isAdmin) {
+    renderAdmin();
+    document.getElementById('results-summary').style.display = 'block';
+  }
+  updateToggles();
+  setAppsScriptCode();
+}
+
+function logout() {
+  currentVoter = null; isAdmin = false;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('gate-pass').value = '';
+  initGate();
+}
+
+// ════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'reveal') initReveal();
+  if (name === 'admin') renderAdmin();
+}
+
+// ════════════════════════════════════════════════════════
+//  VOTING
+// ════════════════════════════════════════════════════════
+
+let myVotes = {}; // awardId -> nominee
+
+function renderVoting() {
+  const list = document.getElementById('awards-list');
+  list.innerHTML = '';
+  const existingVotes = votes[currentVoter] || {};
+  myVotes = {...existingVotes};
+
+  if (!state.votingOpen) {
+    list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);font-style:italic;">Voting is currently closed. Check back later or watch the Reveal.</div>';
+    document.getElementById('submit-btn').disabled = true;
+    return;
+  }
+
+  state.awards.forEach((award, i) => {
+    const voted = myVotes[award.id];
+    const card = document.createElement('div');
+    card.className = 'award-card' + (voted ? ' voted' : '');
+    card.id = 'card-' + award.id;
+    card.innerHTML = `
+      <div class="voted-badge">✓ Voted</div>
+      <div class="award-card-num">Award ${i+1} of ${state.awards.length}</div>
+      <h3>${award.name}</h3>
+      <div class="subtitle">${award.subtitle}</div>
+      <div class="description">${award.description}</div>
+      <div class="nominees-grid" id="nominees-${award.id}">
+        ${award.nominees.filter(n=>n).map(n => `
+          <button class="nominee-btn${voted===n?' selected':''}"
+            onclick="selectNominee('${award.id}', '${n.replace(/'/g,"\\'")}', this)">
+            ${n}
+          </button>
+        `).join('')}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  updateSubmitBtn();
+}
+
+function selectNominee(awardId, nominee, btn) {
+  myVotes[awardId] = nominee;
+  const grid = document.getElementById('nominees-' + awardId);
+  grid.querySelectorAll('.nominee-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('card-' + awardId).classList.add('voted');
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn() {
+  const total = state.awards.length;
+  const done = Object.keys(myVotes).length;
+  const btn = document.getElementById('submit-btn');
+  const note = document.getElementById('submit-note');
+  if (done === total) {
+    btn.disabled = false;
+    note.textContent = 'All ' + total + ' votes ready — click to submit.';
+  } else {
+    btn.disabled = true;
+    note.textContent = done + ' of ' + total + ' awards voted on.';
+  }
+}
+
+async function submitVotes() {
+  votes[currentVoter] = {...myVotes};
+  localStorage.setItem('bbb_votes', JSON.stringify(votes));
+
+  // Submit to Google Sheets if URL set
+  if (state.sheetUrl) {
+    try {
+      const rows = Object.entries(myVotes).map(([awardId, nominee]) => ({
+        timestamp: new Date().toISOString(),
+        voter: currentVoter,
+        award_id: awardId,
+        nominee
+      }));
+      await fetch(state.sheetUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'addVotes', votes: rows})
+      });
+    } catch(e) { /* silent - local save still succeeded */ }
+  }
+
+  showToast('Votes submitted! 🏆');
+  renderVoting();
+}
+
+// ════════════════════════════════════════════════════════
+//  REVEAL
+// ════════════════════════════════════════════════════════
+
+function initReveal() {
+  revealIndex = 0;
+  envelopeOpen = false;
+  showRevealCard();
+}
+
+function getTallies() {
+  // Merge local votes with any from sheets
+  const tallies = {};
+  state.awards.forEach(a => tallies[a.id] = {});
+  Object.values(votes).forEach(voterVotes => {
+    Object.entries(voterVotes).forEach(([awardId, nominee]) => {
+      if (!tallies[awardId]) tallies[awardId] = {};
+      tallies[awardId][nominee] = (tallies[awardId][nominee] || 0) + 1;
+    });
+  });
+  return tallies;
+}
+
+function getWinner(awardId) {
+  const tallies = getTallies()[awardId] || {};
+  let winner = null, max = 0;
+  Object.entries(tallies).forEach(([n, c]) => { if (c > max) { max = c; winner = n; } });
+  const total = Object.values(tallies).reduce((a,b)=>a+b,0);
+  return { winner, votes: max, total, tallies };
+}
+
+function showRevealCard() {
+  const stage = document.getElementById('reveal-stage');
+  stage.classList.remove('show');
+  envelopeOpen = false;
+  document.getElementById('rv-winner').classList.remove('show');
+  document.getElementById('envelope-btn').textContent = '▶ Open Envelope';
+  document.getElementById('envelope-btn').disabled = false;
+
+  const award = state.awards[revealIndex];
+  document.getElementById('rv-num').textContent =
+    'Award ' + (revealIndex+1) + ' of ' + state.awards.length;
+  document.getElementById('rv-name').textContent = award.name;
+  document.getElementById('rv-sub').textContent = award.subtitle;
+  document.getElementById('rv-progress').textContent =
+    (revealIndex+1) + ' / ' + state.awards.length;
+  document.getElementById('rv-prev').disabled = revealIndex === 0;
+  document.getElementById('rv-next').disabled = revealIndex === state.awards.length - 1;
+
+  setTimeout(() => stage.classList.add('show'), 50);
+
+  // Render results table for admin
+  if (isAdmin) renderResultsTables();
+}
+
+function openEnvelope() {
+  if (envelopeOpen) return;
+  envelopeOpen = true;
+  const award = state.awards[revealIndex];
+  const result = getWinner(award.id);
+  const winner = document.getElementById('rv-winner');
+  const btn = document.getElementById('envelope-btn');
+  btn.textContent = '✓ Revealed';
+  btn.disabled = true;
+
+  if (result.winner) {
+    document.getElementById('rv-winner-name').textContent = result.winner;
+    document.getElementById('rv-vote-count').textContent =
+      result.votes + ' of ' + result.total + ' votes';
+  } else {
+    document.getElementById('rv-winner-name').textContent = 'No votes yet';
+    document.getElementById('rv-vote-count').textContent = '';
+  }
+  winner.classList.add('show');
+  if (result.winner) fireConfetti();
+}
+
+function revealNext() {
+  if (revealIndex < state.awards.length - 1) { revealIndex++; showRevealCard(); }
+}
+function revealPrev() {
+  if (revealIndex > 0) { revealIndex--; showRevealCard(); }
+}
+
+function renderResultsTables() {
+  const tallies = getTallies();
+  const wrap = document.getElementById('results-tables');
+  wrap.innerHTML = '';
+  state.awards.forEach(award => {
+    const t = tallies[award.id] || {};
+    const total = Object.values(t).reduce((a,b)=>a+b,0);
+    const sorted = Object.entries(t).sort((a,b)=>b[1]-a[1]);
+    const maxVotes = sorted[0]?.[1] || 1;
+    wrap.innerHTML += `
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-family:'Playfair Display',serif;margin-bottom:0.5rem;">${award.name}</div>
+        <table class="results-table">
+          <tr><th>Nominee</th><th>Votes</th><th></th></tr>
+          ${sorted.map(([n,c],i)=>`
+            <tr class="${i===0?'winner':''}">
+              <td>${n}</td>
+              <td>${c}</td>
+              <td><div class="vote-bar-wrap"><div class="vote-bar" style="width:${Math.round(c/maxVotes*100)}%"></div></div></td>
+            </tr>
+          `).join('')}
+          ${sorted.length===0?'<tr><td colspan="3" style="color:var(--muted);font-style:italic;">No votes yet</td></tr>':''}
+        </table>
+      </div>
+    `;
+  });
+}
+
+// ════════════════════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════════════════════
+
+function renderAdmin() {
+  // Fill in settings
+  document.getElementById('setting-password').value = state.password;
+  document.getElementById('setting-names').value = state.names.join('\n');
+  document.getElementById('sheets-url').value = state.sheetUrl || '';
+  updateToggles();
+  renderAdminAwards();
+}
+
+function renderAdminAwards() {
+  const list = document.getElementById('admin-awards-list');
+  list.innerHTML = '';
+  state.awards.forEach((award, i) => {
+    const card = document.createElement('div');
+    card.className = 'award-admin-card';
+    card.id = 'admin-card-' + award.id;
+    card.innerHTML = `
+      <div class="award-admin-header" onclick="toggleAdminCard('${award.id}')">
+        <span>${i+1}. ${award.name || 'Untitled Award'}</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="award-admin-body">
+        <div class="admin-field">
+          <label>Award name</label>
+          <input type="text" id="aname-${award.id}" value="${award.name}">
+        </div>
+        <div class="admin-field">
+          <label>Subtitle (italic, shown in gold)</label>
+          <input type="text" id="asub-${award.id}" value="${award.subtitle}">
+        </div>
+        <div class="admin-field">
+          <label>Description</label>
+          <textarea id="adesc-${award.id}">${award.description}</textarea>
+        </div>
+        <div class="admin-field">
+          <label>Nominees (up to 6)</label>
+          <div class="nominees-inputs">
+            ${[0,1,2,3,4,5].map(j=>`
+              <input type="text" id="anomp-${award.id}-${j}"
+                value="${award.nominees[j]||''}"
+                placeholder="Nominee ${j+1}">
+            `).join('')}
+          </div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn-sm btn-save" onclick="saveAward('${award.id}')">Save</button>
+          <button class="btn-sm btn-danger" onclick="deleteAward('${award.id}')">Delete</button>
+          ${i > 0 ? `<button class="btn-sm btn-outline" onclick="moveAward('${award.id}', -1)">↑ Up</button>` : ''}
+          ${i < state.awards.length-1 ? `<button class="btn-sm btn-outline" onclick="moveAward('${award.id}', 1)">↓ Down</button>` : ''}
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function toggleAdminCard(id) {
+  const card = document.getElementById('admin-card-' + id);
+  card.classList.toggle('open');
+}
+
+function saveAward(id) {
+  const award = state.awards.find(a => a.id === id);
+  award.name = document.getElementById('aname-' + id).value;
+  award.subtitle = document.getElementById('asub-' + id).value;
+  award.description = document.getElementById('adesc-' + id).value;
+  award.nominees = [0,1,2,3,4,5]
+    .map(j => document.getElementById(`anomp-${id}-${j}`).value.trim())
+    .filter(n => n);
+  saveState();
+  renderAdminAwards();
+  renderVoting();
+  showToast('Award saved ✓');
+}
+
+function deleteAward(id) {
+  if (!confirm('Delete this award category?')) return;
+  state.awards = state.awards.filter(a => a.id !== id);
+  saveState();
+  renderAdminAwards();
+  renderVoting();
+  showToast('Award deleted');
+}
+
+function moveAward(id, dir) {
+  const idx = state.awards.findIndex(a => a.id === id);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= state.awards.length) return;
+  const arr = [...state.awards];
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  state.awards = arr;
+  saveState();
+  renderAdminAwards();
+}
+
+function addAward() {
+  const id = 'a' + Date.now();
+  state.awards.push({
+    id, name: 'New Award', subtitle: 'Subtitle here',
+    description: 'Description here.',
+    nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+  });
+  saveState();
+  renderAdminAwards();
+  // Open the new card
+  setTimeout(() => {
+    const card = document.getElementById('admin-card-' + id);
+    if (card) { card.classList.add('open'); card.scrollIntoView({behavior:'smooth'}); }
+  }, 50);
+}
+
+function saveSettings() {
+  state.password = document.getElementById('setting-password').value || state.password;
+  state.names = document.getElementById('setting-names').value
+    .split('\n').map(n=>n.trim()).filter(n=>n);
+  saveState();
+  initGate();
+  showToast('Settings saved ✓');
+}
+
+function toggleSetting(key) {
+  state[key] = !state[key];
+  saveState();
+  updateToggles();
+  if (key === 'votingOpen') renderVoting();
+  showToast(key === 'votingOpen'
+    ? (state.votingOpen ? 'Voting opened' : 'Voting closed')
+    : (state.resultsVisible ? 'Results visible' : 'Results hidden'));
+}
+
+function updateToggles() {
+  const tv = document.getElementById('toggle-voting');
+  const tr = document.getElementById('toggle-results');
+  if (tv) tv.classList.toggle('on', state.votingOpen);
+  if (tr) tr.classList.toggle('on', state.resultsVisible);
+}
+
+function saveSheetUrl() {
+  state.sheetUrl = document.getElementById('sheets-url').value.trim();
+  saveState();
+  showToast('Sheet URL saved ✓');
+}
+
+async function testSheetUrl() {
+  if (!state.sheetUrl) { showToast('No URL saved yet'); return; }
+  try {
+    const r = await fetch(state.sheetUrl + '?action=ping');
+    const t = await r.text();
+    showToast(t.includes('ok') ? 'Connection OK ✓' : 'Connected (check sheet)');
+  } catch(e) {
+    showToast('Could not reach URL');
+  }
+}
+
+async function refreshVotes() {
+  if (!state.sheetUrl) { showToast('No Google Sheet connected'); return; }
+  try {
+    const r = await fetch(state.sheetUrl + '?action=getVotes');
+    const data = await r.json();
+    // Merge sheet votes into local
+    data.forEach(row => {
+      if (!votes[row.voter]) votes[row.voter] = {};
+      votes[row.voter][row.award_id] = row.nominee;
+    });
+    localStorage.setItem('bbb_votes', JSON.stringify(votes));
+    renderResultsTables();
+    showToast('Votes refreshed ✓');
+  } catch(e) {
+    showToast('Could not fetch votes');
+  }
+}
+
+function clearVotes() {
+  if (!confirm('Clear ALL votes? This cannot be undone.')) return;
+  votes = {};
+  localStorage.setItem('bbb_votes', JSON.stringify(votes));
+  showToast('All votes cleared');
+}
+
+// ════════════════════════════════════════════════════════
+//  APPS SCRIPT TEMPLATE
+// ════════════════════════════════════════════════════════
+
+function setAppsScriptCode() {
+  document.getElementById('apps-script-code').textContent = `
+const SHEET_NAME = 'Votes';
+
+function doGet(e) {
+  const action = e.parameter.action;
+  if (action === 'ping') return ContentService.createTextOutput('ok');
+  if (action === 'getVotes') return getVotes();
+  return ContentService.createTextOutput('BBB Awards API');
+}
+
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  if (data.action === 'addVotes') return addVotes(data.votes);
+  return ContentService.createTextOutput('ok');
+}
+
+function addVotes(rows) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow(['timestamp','voter','award_id','nominee']);
+  }
+  rows.forEach(r => sheet.appendRow([r.timestamp, r.voter, r.award_id, r.nominee]));
+  return ContentService.createTextOutput('ok');
+}
+
+function getVotes() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) return ContentService.createTextOutput('[]');
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const rows = data.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = r[i]);
+    return obj;
+  });
+  return ContentService.createTextOutput(JSON.stringify(rows))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+  `.trim();
+}
+
+function copyAppsScript() {
+  const code = document.getElementById('apps-script-code').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast('Script copied ✓'));
+}
+
+// ════════════════════════════════════════════════════════
+//  CONFETTI
+// ════════════════════════════════════════════════════════
+
+function fireConfetti() {
+  const colors = ['#c9a84c','#f0d080','#fff','#e8e0d0','#888'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════
+
+initGate();
+</script>
+</body>
+</html>
