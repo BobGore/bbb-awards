@@ -633,6 +633,26 @@
     .byork { display: none; }
     .reveal-award-name { font-size: 1.6rem; }
   }
+
+  #bob-message {
+    display: none;
+    background: #1a1200;
+    border-left: 3px solid var(--gold);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+    color: var(--text);
+    text-align: center;
+  }
+  #bob-message.visible { display: block; }
+  #bob-message .msg-label {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
 </style>
 </head>
 <body>
@@ -668,6 +688,11 @@
     </div>
     <h1>The B Weekend</h1>
     <h2>Treble B Awards</h2>
+  </div>
+
+  <div id="bob-message">
+    <span class="msg-label">A message from Bob</span>
+    <span id="bob-message-text"></span>
   </div>
 
   <div class="nav-links">
@@ -971,6 +996,15 @@ async function enterApp() {
     'Voting as: ' + currentVoter + (state.votingOpen ? '' : ' · Voting is closed');
   // Load awards from sheet
   await loadAwardsFromSheet();
+  // Load message banner
+  try {
+    const r = await fetch(state.sheetUrl + '?action=getMessage');
+    const d = await r.json();
+    if (d && d.message) {
+      document.getElementById('bob-message-text').textContent = d.message;
+      document.getElementById('bob-message').classList.add('visible');
+    }
+  } catch(e) {}
   // Check sheet to see if this voter has actually voted — resets local state if not
   if (!isAdmin) await syncVoterStatusFromSheet();
   renderVoting();
