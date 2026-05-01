@@ -789,6 +789,7 @@
         </div>
         <div class="admin-actions mt1">
           <button class="btn-sm btn-outline" onclick="refreshVotes()">Refresh Votes</button>
+          <button class="btn-sm btn-save" onclick="generateSummary()">Generate Summary Sheet</button>
           <button class="btn-sm btn-danger" onclick="clearVotes()">Clear All Votes</button>
         </div>
       </div>
@@ -966,8 +967,10 @@ async function enterApp() {
   document.getElementById('nav-reveal').style.display = isAdmin ? 'inline' : 'none';
   document.getElementById('voter-greeting').textContent =
     'Voting as: ' + currentVoter + (state.votingOpen ? '' : ' · Voting is closed');
-  // Load awards from sheet if URL is set
+  // Load awards from sheet
   await loadAwardsFromSheet();
+  // Check sheet to see if this voter has actually voted — resets local state if not
+  if (!isAdmin) await syncVoterStatusFromSheet();
   renderVoting();
   if (isAdmin) {
     renderAdmin();
@@ -1426,6 +1429,22 @@ function clearVotes() {
   showToast('All votes cleared');
 }
 
+async function generateSummary() {
+  if (!state.sheetUrl) { showToast('No Google Sheet connected'); return; }
+  showToast('Generating summary...');
+  try {
+    await fetch(state.sheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'generateSummary'})
+    });
+    showToast('Summary sheet updated ✓');
+  } catch(e) {
+    showToast('Could not generate summary');
+  }
+}
+
 // ════════════════════════════════════════════════════════
 //  APPS SCRIPT TEMPLATE
 // ════════════════════════════════════════════════════════
@@ -1446,6 +1465,7 @@ function doPost(e) {
   const data = JSON.parse(e.postData.contents);
   if (data.action === 'addVotes') { addVotes(data.votes); return resp('ok'); }
   if (data.action === 'saveAwards') { saveAwards(data.awards); return resp('ok'); }
+  if (data.action === 'generateSummary') { generateSummary(); return resp('ok'); }
   return resp('ok');
 }
 
@@ -1496,6 +1516,70 @@ function saveAwards(awards) {
   sheet.clearContents();
   sheet.appendRow(['id','name','subtitle','description','nominees']);
   awards.forEach(a => sheet.appendRow([a.id, a.name, a.subtitle, a.description, a.nominees]));
+}
+
+function generateSummary() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const votesSheet = ss.getSheetByName('Votes');
+  const awardsSheet = ss.getSheetByName('Awards');
+
+  // Get or create Summary sheet
+  let summary = ss.getSheetByName('Summary');
+  if (!summary) summary = ss.insertSheet('Summary');
+  summary.clearContents();
+  summary.clearFormats();
+
+  const votes = votesSheet.getDataRange().getValues().slice(1);
+  const awards = awardsSheet.getDataRange().getValues().slice(1);
+
+  // ── WHO HAS VOTED ──
+  summary.getRange('A1').setValue('WHO HAS VOTED');
+  summary.getRange('A1').setFontWeight('bold').setFontSize(12);
+  summary.getRange('A2:C2').setValues([['Name','Status','Votes cast']]);
+  summary.getRange('A2:C2').setFontWeight('bold').setBackground('#f0d080');
+
+  const voterNames = VALID_NAMES;
+  const totalAwards = awards.length;
+
+  voterNames.forEach((name, i) => {
+    const voterVotes = votes.filter(r => r[1] === name);
+    const count = voterVotes.length;
+    const status = count === totalAwards ? '✓ Voted' : count > 0 ? 'Partial' : 'Waiting';
+    summary.getRange(3 + i, 1, 1, 3).setValues([[name, status, count + ' / ' + totalAwards]]);
+    if (count === totalAwards) {
+      summary.getRange(3 + i, 1, 1, 3).setBackground('#d4edda');
+    } else if (count > 0) {
+      summary.getRange(3 + i, 1, 1, 3).setBackground('#fff3cd');
+    }
+  });
+
+  // ── RUNNING TOTALS ──
+  const startRow = 3 + voterNames.length + 2;
+  summary.getRange(startRow, 1).setValue('RUNNING TOTALS');
+  summary.getRange(startRow, 1).setFontWeight('bold').setFontSize(12);
+  summary.getRange(startRow + 1, 1, 1, 3).setValues([['Award','Leading','Votes']]);
+  summary.getRange(startRow + 1, 1, 1, 3).setFontWeight('bold').setBackground('#f0d080');
+
+  awards.forEach((award, i) => {
+    const awardId = award[0];
+    const awardName = award[1];
+    const awardVotes = votes.filter(r => r[2] === awardId);
+
+    // Tally votes
+    const tally = {};
+    awardVotes.forEach(r => { tally[r[3]] = (tally[r[3]] || 0) + 1; });
+    const sorted = Object.entries(tally).sort((a,b) => b[1]-a[1]);
+    const leader = sorted[0] ? sorted[0][0] : 'No votes yet';
+    const leaderVotes = sorted[0] ? sorted[0][1] + ' vote' + (sorted[0][1]>1?'s':'') : '';
+    const isTie = sorted.length > 1 && sorted[0][1] === sorted[1][1];
+
+    summary.getRange(startRow + 2 + i, 1, 1, 3).setValues([
+      [awardName, isTie ? leader + ' (tied)' : leader, leaderVotes]
+    ]);
+  });
+
+  // Auto-resize columns
+  summary.autoResizeColumns(1, 3);
 }
   `.trim();
 }
@@ -1553,6 +1637,30 @@ async function pushAll() {
   showToast('Pushing to Sheet...');
   await pushAwardsToSheet();
   showToast('All awards pushed to Sheet ✓');
+}
+
+async function syncVoterStatusFromSheet() {
+  if (!state.sheetUrl) return;
+  try {
+    const r = await fetch(state.sheetUrl + '?action=getVotes');
+    const data = await r.json();
+    if (!Array.isArray(data)) return;
+    // Filter votes for this voter from the sheet
+    const sheetVotes = data.filter(row => row.voter === currentVoter);
+    if (sheetVotes.length === 0) {
+      // No votes on sheet for this person — reset local so they can vote
+      delete votes[currentVoter];
+      localStorage.setItem('bbb_votes', JSON.stringify(votes));
+    } else {
+      // Rebuild local votes from sheet data
+      const rebuilt = {};
+      sheetVotes.forEach(row => { rebuilt[row.award_id] = row.nominee; });
+      votes[currentVoter] = rebuilt;
+      localStorage.setItem('bbb_votes', JSON.stringify(votes));
+    }
+  } catch(e) {
+    console.warn('Could not sync voter status from sheet:', e);
+  }
 }
 
 async function loadAwardsFromSheet() {
