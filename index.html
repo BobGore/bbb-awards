@@ -670,7 +670,7 @@
 
   <div class="nav-links">
     <a onclick="showView('voting')" id="nav-voting">Vote</a>
-    <a onclick="showView('reveal')" id="nav-reveal">Reveal</a>
+    <a onclick="showView('reveal')" id="nav-reveal" style="display:none;">Reveal</a>
     <a onclick="showView('admin')" id="nav-admin" style="display:none;">Admin</a>
     <a onclick="logout()" style="color:var(--muted);">Logout</a>
   </div>
@@ -704,7 +704,7 @@
       </div>
     </div>
     <div class="reveal-progress" id="rv-progress"></div>
-    <div class="reveal-nav">
+    <div class="reveal-nav" id="reveal-nav">
       <button onclick="revealPrev()" id="rv-prev">◀ Previous</button>
       <button onclick="revealNext()" id="rv-next">Next ▶</button>
     </div>
@@ -963,6 +963,7 @@ async function enterApp() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('nav-admin').style.display = isAdmin ? 'inline' : 'none';
+  document.getElementById('nav-reveal').style.display = isAdmin ? 'inline' : 'none';
   document.getElementById('voter-greeting').textContent =
     'Voting as: ' + currentVoter + (state.votingOpen ? '' : ' · Voting is closed');
   // Load awards from sheet if URL is set
@@ -1094,6 +1095,21 @@ async function submitVotes() {
 // ════════════════════════════════════════════════════════
 
 function initReveal() {
+  if (state.votingOpen) {
+    const stage = document.getElementById('reveal-stage');
+    stage.classList.remove('show');
+    stage.innerHTML = `
+      <div style="text-align:center;padding:3rem;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:3rem;color:var(--gold);margin-bottom:1rem;">⏳</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.5rem;">Voting is still open</div>
+        <div style="color:var(--muted);font-style:italic;font-size:0.95rem;">Close voting in the Admin panel before running the reveal.</div>
+      </div>
+    `;
+    document.getElementById('rv-progress').textContent = '';
+    document.getElementById('reveal-nav').style.display = 'none';
+    return;
+  }
+  document.getElementById('reveal-nav').style.display = 'flex';
   revealIndex = 0;
   envelopeOpen = false;
   showRevealCard();
