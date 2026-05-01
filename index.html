@@ -256,6 +256,8 @@
     color: var(--black);
     font-weight: 600;
   }
+  .nominee-btn .nom-name { display: block; font-weight: 600; }
+  .nominee-btn .nom-reason { display: block; font-size: 0.78rem; font-style: italic; opacity: 0.8; margin-top: 0.1rem; }
   .voted-badge {
     position: absolute;
     top: 1rem;
@@ -1007,6 +1009,12 @@ function showView(name) {
 
 let myVotes = {}; // awardId -> nominee
 
+// Parse "Name|strap line" into {name, reason}
+function parseNominee(str) {
+  const parts = str.split('|');
+  return { name: parts[0].trim(), reason: parts[1] ? parts[1].trim() : '' };
+}
+
 function renderVoting() {
   const list = document.getElementById('awards-list');
   list.innerHTML = '';
@@ -1196,7 +1204,8 @@ function openEnvelope() {
   btn.disabled = true;
 
   if (result.winner) {
-    document.getElementById('rv-winner-name').textContent = result.winner;
+    const wp = parseNominee(result.winner);
+    document.getElementById('rv-winner-name').textContent = wp.name;
     document.getElementById('rv-vote-count').textContent =
       result.votes + ' of ' + result.total + ' votes';
   } else {
@@ -1230,7 +1239,7 @@ function renderResultsTables() {
           <tr><th>Nominee</th><th>Votes</th><th></th></tr>
           ${sorted.map(([n,c],i)=>`
             <tr class="${i===0?'winner':''}">
-              <td>${n}</td>
+              <td>${parseNominee(n).name}</td>
               <td>${c}</td>
               <td><div class="vote-bar-wrap"><div class="vote-bar" style="width:${Math.round(c/maxVotes*100)}%"></div></div></td>
             </tr>
@@ -1281,14 +1290,21 @@ function renderAdminAwards() {
           <textarea id="adesc-${award.id}">${award.description}</textarea>
         </div>
         <div class="admin-field">
-          <label>Nominees (up to 6)</label>
-          <div class="nominees-inputs">
-            ${[0,1,2,3,4,5].map(j=>`
-              <input type="text" id="anomp-${award.id}-${j}"
-                value="${award.nominees[j]||''}"
-                placeholder="Nominee ${j+1}">
-            `).join('')}
-          </div>
+          <label>Nominees (up to 6) — Name | Strap line</label>
+          ${[0,1,2,3,4,5].map(j => {
+            const p = parseNominee(award.nominees[j] || '');
+            return `
+            <div style="display:grid;grid-template-columns:1fr 2fr;gap:0.4rem;margin-bottom:0.4rem;">
+              <input type="text" id="anomp-name-${award.id}-${j}"
+                value="${p.name}"
+                placeholder="Name ${j+1}"
+                style="background:var(--black);border:1px solid var(--border);color:var(--text);padding:0.5rem;font-family:'Crimson Text',serif;font-size:0.9rem;outline:none;">
+              <input type="text" id="anomp-reason-${award.id}-${j}"
+                value="${p.reason}"
+                placeholder="for being a complete wazzock..."
+                style="background:var(--black);border:1px solid var(--border);color:var(--text);padding:0.5rem;font-family:'Crimson Text',serif;font-size:0.9rem;outline:none;font-style:italic;">
+            </div>`;
+          }).join('')}
         </div>
         <div class="admin-actions">
           <button class="btn-sm btn-save" onclick="saveAward('${award.id}')">Save</button>
@@ -1313,7 +1329,12 @@ async function saveAward(id) {
   award.subtitle = document.getElementById('asub-' + id).value;
   award.description = document.getElementById('adesc-' + id).value;
   award.nominees = [0,1,2,3,4,5]
-    .map(j => document.getElementById(`anomp-${id}-${j}`).value.trim())
+    .map(j => {
+      const name = document.getElementById(`anomp-name-${id}-${j}`).value.trim();
+      const reason = document.getElementById(`anomp-reason-${id}-${j}`).value.trim();
+      if (!name) return '';
+      return reason ? `${name}|${reason}` : name;
+    })
     .filter(n => n);
   saveState();
   await pushAwardsToSheet();
@@ -1349,7 +1370,7 @@ function addAward() {
   state.awards.push({
     id, name: 'New Award', subtitle: 'Subtitle here',
     description: 'Description here.',
-    nominees: ['Nominee A','Nominee B','Nominee C','Nominee D']
+    nominees: ['Nominee A|strap line here','Nominee B|strap line here','Nominee C|strap line here','Nominee D|strap line here']
   });
   saveState();
   renderAdminAwards();
