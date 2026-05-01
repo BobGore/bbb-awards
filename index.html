@@ -754,8 +754,8 @@
           </div>
         </div>
         <div class="admin-field mt1">
-          <label>Access password</label>
-          <input type="text" id="setting-password" placeholder="Current password">
+          <label>Change access password (leave blank to keep current)</label>
+          <input type="text" id="setting-password" placeholder="Enter new password">
         </div>
         <div class="admin-field">
           <label>Attendee names (one per line)</label>
@@ -818,10 +818,16 @@
 //  STATE
 // ════════════════════════════════════════════════════════
 
-const ADMIN_PASSWORD = 'bbbawards2026admin';
+// Passwords stored as SHA-256 hashes — plain text never appears in source
+const ADMIN_PASSWORD_HASH = '7c10d0655d5f14283b654f1af0c3f6fff50a95549e3eeff3cae70d0c3e2c921e';
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 const defaultState = {
-  password: 'byork2026',
+  passwordHash: '97ec9e9107c2ea68d658bb7e251ce55c7b2278fbe2947ef55b740896081e99fb',
   votingOpen: true,
   resultsVisible: false,
   sheetUrl: '',
@@ -922,19 +928,21 @@ function initGate() {
   sel.appendChild(ao);
 }
 
-function gateEnter() {
+async function gateEnter() {
   const name = document.getElementById('gate-name').value;
   const pass = document.getElementById('gate-pass').value;
   const err = document.getElementById('gate-error');
   err.style.display = 'none';
 
-  if (name === '__admin__' && pass === ADMIN_PASSWORD) {
+  const hash = await sha256(pass);
+
+  if (name === '__admin__' && hash === ADMIN_PASSWORD_HASH) {
     isAdmin = true;
     currentVoter = 'Admin';
     enterApp();
     return;
   }
-  if (name && pass === state.password) {
+  if (name && hash === state.passwordHash) {
     isAdmin = false;
     currentVoter = name;
     enterApp();
@@ -1193,7 +1201,7 @@ function renderResultsTables() {
 
 function renderAdmin() {
   // Fill in settings
-  document.getElementById('setting-password').value = state.password;
+  document.getElementById('setting-password').value = '';
   document.getElementById('setting-names').value = state.names.join('\n');
   document.getElementById('sheets-url').value = state.sheetUrl || '';
   updateToggles();
@@ -1302,8 +1310,9 @@ function addAward() {
   }, 50);
 }
 
-function saveSettings() {
-  state.password = document.getElementById('setting-password').value || state.password;
+async function saveSettings() {
+  const newPass = document.getElementById('setting-password').value.trim();
+  if (newPass) state.passwordHash = await sha256(newPass);
   state.names = document.getElementById('setting-names').value
     .split('\n').map(n=>n.trim()).filter(n=>n);
   saveState();
