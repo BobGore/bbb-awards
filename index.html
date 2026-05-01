@@ -770,6 +770,10 @@
       <div class="admin-section">
         <h3>Award Categories</h3>
         <div id="admin-awards-list"></div>
+        <div class="admin-actions" style="margin-bottom:0.75rem;">
+          <button class="btn-sm btn-outline" onclick="pullAwards()">↓ Pull from Sheet</button>
+          <button class="btn-sm btn-save" onclick="pushAll()">↑ Push all to Sheet</button>
+        </div>
         <button class="btn-outline mt1" onclick="addAward()" style="width:100%;padding:0.7rem;">
           + Add New Award Category
         </button>
@@ -955,12 +959,14 @@ document.getElementById('gate-pass').addEventListener('keydown', e => {
   if (e.key === 'Enter') gateEnter();
 });
 
-function enterApp() {
+async function enterApp() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('nav-admin').style.display = isAdmin ? 'inline' : 'none';
   document.getElementById('voter-greeting').textContent =
     'Voting as: ' + currentVoter + (state.votingOpen ? '' : ' · Voting is closed');
+  // Load awards from sheet if URL is set
+  await loadAwardsFromSheet();
   renderVoting();
   if (isAdmin) {
     renderAdmin();
@@ -1260,7 +1266,7 @@ function toggleAdminCard(id) {
   card.classList.toggle('open');
 }
 
-function saveAward(id) {
+async function saveAward(id) {
   const award = state.awards.find(a => a.id === id);
   award.name = document.getElementById('aname-' + id).value;
   award.subtitle = document.getElementById('asub-' + id).value;
@@ -1269,21 +1275,23 @@ function saveAward(id) {
     .map(j => document.getElementById(`anomp-${id}-${j}`).value.trim())
     .filter(n => n);
   saveState();
+  await pushAwardsToSheet();
   renderAdminAwards();
   renderVoting();
-  showToast('Award saved ✓');
+  showToast('Award saved & synced to Sheet ✓');
 }
 
-function deleteAward(id) {
+async function deleteAward(id) {
   if (!confirm('Delete this award category?')) return;
   state.awards = state.awards.filter(a => a.id !== id);
   saveState();
+  await pushAwardsToSheet();
   renderAdminAwards();
   renderVoting();
-  showToast('Award deleted');
+  showToast('Award deleted & synced ✓');
 }
 
-function moveAward(id, dir) {
+async function moveAward(id, dir) {
   const idx = state.awards.findIndex(a => a.id === id);
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= state.awards.length) return;
@@ -1291,6 +1299,7 @@ function moveAward(id, dir) {
   [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
   state.awards = arr;
   saveState();
+  await pushAwardsToSheet();
   renderAdminAwards();
 }
 
@@ -1463,6 +1472,64 @@ function showToast(msg) {
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ════════════════════════════════════════════════════════
+//  SHEET SYNC — AWARDS
+// ════════════════════════════════════════════════════════
+
+async function pullAwards() {
+  showToast('Pulling from Sheet...');
+  await loadAwardsFromSheet();
+  renderAdminAwards();
+  renderVoting();
+  showToast('Awards loaded from Sheet ✓');
+}
+
+async function pushAll() {
+  showToast('Pushing to Sheet...');
+  await pushAwardsToSheet();
+  showToast('All awards pushed to Sheet ✓');
+}
+
+async function loadAwardsFromSheet() {
+  if (!state.sheetUrl) return;
+  try {
+    const r = await fetch(state.sheetUrl + '?action=getAwards');
+    const data = await r.json();
+    if (!Array.isArray(data) || data.length === 0) return;
+    state.awards = data.map(row => ({
+      id: row.id || ('a' + Date.now() + Math.random()),
+      name: row.name || '',
+      subtitle: row.subtitle || '',
+      description: row.description || '',
+      nominees: row.nominees ? String(row.nominees).split(',').map(n=>n.trim()).filter(n=>n) : []
+    }));
+    saveState();
+  } catch(e) {
+    console.warn('Could not load awards from sheet:', e);
+  }
+}
+
+async function pushAwardsToSheet() {
+  if (!state.sheetUrl) return;
+  try {
+    const awards = state.awards.map(a => ({
+      id: a.id,
+      name: a.name,
+      subtitle: a.subtitle,
+      description: a.description,
+      nominees: a.nominees.join(',')
+    }));
+    await fetch(state.sheetUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'saveAwards', awards})
+    });
+  } catch(e) {
+    console.warn('Could not push awards to sheet:', e);
+  }
 }
 
 // ════════════════════════════════════════════════════════
