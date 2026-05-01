@@ -1055,16 +1055,19 @@ function renderVoting() {
   const existingVotes = votes[currentVoter] || {};
   myVotes = {...existingVotes};
 
+  const submitBtn = document.getElementById('submit-btn');
+  const submitNote = document.getElementById('submit-note');
+
   if (!state.votingOpen) {
-    list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);font-style:italic;">Voting is currently closed. Check back later or watch the Reveal.</div>';
-    document.getElementById('submit-btn').disabled = true;
-    document.getElementById('submit-note').textContent = '';
-    return;
+    submitBtn.style.display = 'none';
+    submitNote.textContent = 'Voting is now closed. You can still view the nominees below.';
+  } else {
+    submitBtn.style.display = 'block';
   }
 
-  // Check if this voter has already submitted all votes
+  // Check if this voter has already submitted all votes (only relevant when voting is open)
   const alreadyVoted = Object.keys(existingVotes).length === state.awards.length;
-  if (alreadyVoted) {
+  if (alreadyVoted && state.votingOpen) {
     list.innerHTML = `
       <div style="text-align:center;padding:3rem;">
         <div style="font-family:'Bebas Neue',cursive;font-size:3rem;color:var(--gold);margin-bottom:1rem;">✓</div>
@@ -1072,11 +1075,10 @@ function renderVoting() {
         <div style="color:var(--muted);font-style:italic;font-size:0.95rem;">Thanks ${currentVoter} — sit back and enjoy the ceremony.</div>
       </div>
     `;
-    document.getElementById('submit-btn').style.display = 'none';
-    document.getElementById('submit-note').textContent = '';
+    submitBtn.style.display = 'none';
+    submitNote.textContent = '';
     return;
   }
-  document.getElementById('submit-btn').style.display = 'block';
 
   state.awards.forEach((award, i) => {
     const voted = myVotes[award.id];
@@ -1092,7 +1094,7 @@ function renderVoting() {
       <div class="nominees-grid" id="nominees-${award.id}">
         ${award.nominees.filter(n=>n).map(n => `
           <button class="nominee-btn${voted===n?' selected':''}"
-            onclick="selectNominee('${award.id}', '${n.replace(/'/g,"\\'")}', this)">
+            ${state.votingOpen ? `onclick="selectNominee('${award.id}', '${n.replace(/'/g,"\\'")}', this)"` : 'disabled style="cursor:default;"'}>
             ${n}
           </button>
         `).join('')}
@@ -1100,7 +1102,8 @@ function renderVoting() {
     `;
     list.appendChild(card);
   });
-  updateSubmitBtn();
+
+  if (state.votingOpen) updateSubmitBtn();
 }
 
 function selectNominee(awardId, nominee, btn) {
