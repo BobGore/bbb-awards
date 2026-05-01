@@ -1103,7 +1103,7 @@ async function submitVotes() {
         timestamp: new Date().toISOString(),
         voter: currentVoter,
         award_id: awardId,
-        nominee
+        nominee: nominee.split('|')[0].trim()  // strip strap line, store name only
       }));
       await fetch(state.sheetUrl, {
         method: 'POST',
