@@ -1013,8 +1013,25 @@ function renderVoting() {
   if (!state.votingOpen) {
     list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted);font-style:italic;">Voting is currently closed. Check back later or watch the Reveal.</div>';
     document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-note').textContent = '';
     return;
   }
+
+  // Check if this voter has already submitted all votes
+  const alreadyVoted = Object.keys(existingVotes).length === state.awards.length;
+  if (alreadyVoted) {
+    list.innerHTML = `
+      <div style="text-align:center;padding:3rem;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:3rem;color:var(--gold);margin-bottom:1rem;">✓</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.5rem;">Your votes are in!</div>
+        <div style="color:var(--muted);font-style:italic;font-size:0.95rem;">Thanks ${currentVoter} — sit back and enjoy the ceremony.</div>
+      </div>
+    `;
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('submit-note').textContent = '';
+    return;
+  }
+  document.getElementById('submit-btn').style.display = 'block';
 
   state.awards.forEach((award, i) => {
     const voted = myVotes[award.id];
@@ -1088,6 +1105,11 @@ async function submitVotes() {
 
   showToast('Votes submitted! 🏆');
   renderVoting();
+}
+
+function hasAlreadyVoted(voter) {
+  const v = votes[voter] || {};
+  return Object.keys(v).length === state.awards.length;
 }
 
 // ════════════════════════════════════════════════════════
@@ -1410,45 +1432,70 @@ function clearVotes() {
 
 function setAppsScriptCode() {
   document.getElementById('apps-script-code').textContent = `
-const SHEET_NAME = 'Votes';
+const VALID_NAMES = ['Andy','Simon','Shep','Paul','Dave','Mark','Tony','Martin','Bob'];
 
 function doGet(e) {
   const action = e.parameter.action;
-  if (action === 'ping') return ContentService.createTextOutput('ok');
-  if (action === 'getVotes') return getVotes();
-  return ContentService.createTextOutput('BBB Awards API');
+  if (action === 'ping') return resp('ok');
+  if (action === 'getVotes') return resp(JSON.stringify(getVotes()));
+  if (action === 'getAwards') return resp(JSON.stringify(getAwards()));
+  return resp('BBB Awards API');
 }
 
 function doPost(e) {
   const data = JSON.parse(e.postData.contents);
-  if (data.action === 'addVotes') return addVotes(data.votes);
-  return ContentService.createTextOutput('ok');
+  if (data.action === 'addVotes') { addVotes(data.votes); return resp('ok'); }
+  if (data.action === 'saveAwards') { saveAwards(data.awards); return resp('ok'); }
+  return resp('ok');
+}
+
+function resp(text) {
+  return ContentService.createTextOutput(text)
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function addVotes(rows) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(['timestamp','voter','award_id','nominee']);
-  }
-  rows.forEach(r => sheet.appendRow([r.timestamp, r.voter, r.award_id, r.nominee]));
-  return ContentService.createTextOutput('ok');
+  const sheet = ss.getSheetByName('Votes');
+
+  // Get existing votes to check for duplicates
+  const existing = sheet.getDataRange().getValues();
+  const alreadyVoted = new Set(existing.slice(1).map(r => r[1])); // voter column
+
+  rows.forEach(r => {
+    // Reject if voter name not in valid list
+    if (!VALID_NAMES.includes(r.voter)) return;
+    // Reject if voter has already submitted
+    if (alreadyVoted.has(r.voter)) return;
+    sheet.appendRow([r.timestamp, r.voter, r.award_id, r.nominee]);
+  });
 }
 
 function getVotes() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) return ContentService.createTextOutput('[]');
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Votes');
+  if (!sheet) return [];
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  const rows = data.slice(1).map(r => {
-    const obj = {};
-    headers.forEach((h,i) => obj[h] = r[i]);
-    return obj;
+  return data.slice(1).map(r => {
+    const obj = {}; headers.forEach((h,i) => obj[h] = r[i]); return obj;
   });
-  return ContentService.createTextOutput(JSON.stringify(rows))
-    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getAwards() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Awards');
+  if (!sheet) return [];
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  return data.slice(1).map(r => {
+    const obj = {}; headers.forEach((h,i) => obj[h] = r[i]); return obj;
+  });
+}
+
+function saveAwards(awards) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Awards');
+  sheet.clearContents();
+  sheet.appendRow(['id','name','subtitle','description','nominees']);
+  awards.forEach(a => sheet.appendRow([a.id, a.name, a.subtitle, a.description, a.nominees]));
 }
   `.trim();
 }
