@@ -971,12 +971,16 @@ async function gateEnter() {
   if (name === '__admin__' && hash === ADMIN_PASSWORD_HASH) {
     isAdmin = true;
     currentVoter = 'Admin';
+    sessionStorage.setItem('bbb_voter', 'Admin');
+    sessionStorage.setItem('bbb_admin', '1');
     enterApp();
     return;
   }
   if (name && hash === state.passwordHash) {
     isAdmin = false;
     currentVoter = name;
+    sessionStorage.setItem('bbb_voter', name);
+    sessionStorage.removeItem('bbb_admin');
     enterApp();
     return;
   }
@@ -1018,6 +1022,8 @@ async function enterApp() {
 
 function logout() {
   currentVoter = null; isAdmin = false;
+  sessionStorage.removeItem('bbb_voter');
+  sessionStorage.removeItem('bbb_admin');
   document.getElementById('gate').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('gate-pass').value = '';
@@ -1766,6 +1772,13 @@ async function pushAwardsToSheet() {
 // ════════════════════════════════════════════════════════
 
 initGate();
+
+const savedVoter = sessionStorage.getItem('bbb_voter');
+if (savedVoter) {
+  currentVoter = savedVoter;
+  isAdmin = sessionStorage.getItem('bbb_admin') === '1';
+  enterApp();
+}
 </script>
 </body>
 </html>
